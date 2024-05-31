@@ -39,10 +39,50 @@ document.addEventListener('DOMContentLoaded', function() {
     googleHybrid.addTo(map);
 
     //marker
-    var marker = L.marker([35.8617, 104.1954]).addTo(map);
-    var popup = marker.bindPopup("This is China.").openPopup();
+    var myIcon = L.icon({
+        iconUrl: 'img/red_icon.png',
+        iconSize: [20, 20],
+    });
+    var marker = L.marker([35.8617, 104.1954], { icon:myIcon, draggable:true }).addTo(map);
+    var popup = marker.bindPopup("This is China." + marker.getLatLng()).openPopup();
     popup.addTo(map);
 
+    var secondMarker = L.marker([36.8617, 103.1954], { icon:myIcon, draggable:true }).addTo(map);
+
+    //get the latitude and longitude of the marker from console
+    console.log(marker.toGeoJSON());
+
+    //layer controller
+    var baseMaps = {
+        "osmHot": osmHot,
+        "waterColor": waterColor,
+        "googleHybrid": googleHybrid
+    };
+    
+    var overlayMaps = {
+        "Marker": marker,
+        "secondMarker": secondMarker
+    };
+    
+    //map.removelayer(marker);
+
+    L.control.layers(baseMaps, overlayMaps, { collapsed: false }).addTo(map);
+    L.geoJson(chinaJson, {
+        onEachFeature: function(feature, layer) {
+            layer.on('click', function(e) {
+                var properties = feature.properties;
+                var popupContent = "<b>Name:</b> " + properties.NAME_1 + "<br>" +
+                                   "<b>VARNAME:</b> " + properties.VARNAME_1 + "<br>" +
+                                   "<b>NL_NAME:</b> " + properties.NL_NAME_1 + "<br>" +
+                                   "<b>TYPE:</b> " + properties.TYPE_1 + "<br>" +
+                                   "<b>ENGTYPE:</b> " + properties.ENGTYPE_1 + "<br>" +
+                                   "<b>HASC:</b> " + properties.HASC_1;
+                layer.bindPopup(popupContent).openPopup();
+            });
+        }
+    }).addTo(map);
 });
+
+
 
 
